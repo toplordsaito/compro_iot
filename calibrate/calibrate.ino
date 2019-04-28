@@ -3,7 +3,7 @@
 #include "math.h"
 
 #define DHTPIN D0 // what digital pin we're connected to
-#define DHTTYPE DHT22
+#define DHTTYPE DHT11
 #define VARIANCE 10 //ความแปรปวน 
 
 DHT dht(DHTPIN, DHTTYPE);
@@ -12,6 +12,7 @@ float tempSD;
 float humiSD;
 float distSD;
 float temp[10], humi[10], dist[10];
+float tempNow, humiNow, distNow;      //ค่าที่จะอัพขึ้น
 
 void setup() {
   Serial.begin(9600);
@@ -40,11 +41,11 @@ void loop() {
 
 void calibrate() {
   //Star Value
-  temp[0] = dht.readTemperature();
-  dist[0] = analogRead();
-  humi[0] = dht.readHumidity();
+  tempNow = dht.readTemperature();
+  distNow = analogRead();
+  humiNow = dht.readHumidity();
 
-  if (isnan(tem) || isnan(humi)) {
+  if (isnan(tempNow) || isnan(humiNow)) {
     Serial.println("Failed to read from DHT sensor!");
     delay(500);
     calibrate();
@@ -107,4 +108,22 @@ void extension() {
     printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humi[9]);
     printf("** ความชื้นในอากาศมีค่าต่ำกว่าระดับที่เหมาะสม ควรใช้ครีมบำรุงผิวเพื่อให้ผิวชุ่มชื้นอยู่ตลอดเวลา **");
   }
+}
+
+void find_dist() {
+  digitalWrite(D0, LOW);
+  delayMicroseconds(5);
+  digitalWrite(D0, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(D0, LOW);
+  
+  duration = pulseIn(D1, HIGH);
+  cm = (duration/2)/29.1;
+
+  Serial.println(cm);
+  Serial.println("cm");
+  Serial.println();
+
+  delay(1000);
+
 }
