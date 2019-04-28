@@ -1,12 +1,19 @@
-#include <TimeLib.h>
+//#include <TimeLib.h>
 #include "DHT.h"
 #include "math.h"
+#include <FirebaseArduino.h>
+#include <ESP8266WiFi.h>
 
 #define DHTPIN D0 // what digital pin we're connected to
 #define TRIC D1 //input distance sensor
 #define ECHO D2 //output distance sensor
 #define DHTTYPE DHT11
-#define VARIANCE 10 //ความแปรปวน 
+#define VARIANCE 10 //ความแปรปวน
+
+#define WIFI_SSID "Beaslzlo"
+#define WIFI_PASSWORD "0911919890"
+#define FIREBASE_HOST "iot-itcamp-4faf6.firebaseio.com"
+#define FIREBASE_AUTH "SIfGol16ty51iMyjzndxwuaZvyM7ymdfdFcvHdnW"
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -17,6 +24,19 @@ float temp[10], humi[10], dist[10];
 float tempNow, humiNow, distNow;      //ค่าที่จะอัพขึ้น
 
 void setup() {
+  // connect to wifi.
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("connecting");
+ 
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("connected: ");
+  Serial.println(WiFi.localIP());
+ 
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   Serial.begin(9600);
   pinMode(TRIC, OUTPUT);  
   pinMode(ECHO, INPUT);  
@@ -37,7 +57,9 @@ void loop() {
   tempSD = abs((calculateSD(tem)/100)*tempSD - 100) < VARIANCE ? (calculateSD(tem)): tempSD;
   distSD = abs((calculateSD(dist)/100)*tempSD - 100) < VARIANCE ? (calculateSD(dist)): tempSD;
   humiSD = abs((calculateSD(humi)/100)*tempSD - 100) < VARIANCE ? (calculateSD(humi)): tempSD;
-
+  Firebase.set("temp", tempSD);
+  Firebase.set("dis", distSD);
+  Firebase.set("humi", humiSD);
   extension();
 }
 
@@ -79,7 +101,7 @@ float calculateSD(float data[10]) {
 
   mean = sum/10;
 
-  for(i=0; i<10; ++i)
+  for(int i=0; i<10; ++i)
    standardDeviation += pow(data[i] - mean, 2);
   
   return sqrt(standardDeviation/10);
@@ -127,7 +149,7 @@ void extension() {
     printf("** ความชื้นในอากาศมีค่ามากเกินไปซึ่งป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา เป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา ซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดได้ **");
   } else if (humiNow >= 30) {
     printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
-  } else (humiNow1 < 30) {
+  } else if(humiNow < 30) {
     printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
     printf("** ความชื้นในอากาศมีค่าต่ำกว่าระดับที่เหมาะสม ควรใช้ครีมบำรุงผิวเพื่อให้ผิวชุ่มชื้นอยู่ตลอดเวลา **");
   }
