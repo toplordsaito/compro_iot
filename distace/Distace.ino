@@ -2,8 +2,8 @@ float duration, cm;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(D0, OUTPUT);
-  pinMode(D1, INPUT);
+  pinMode(D0, OUTPUT);  //Tri
+  pinMode(D1, INPUT);   //Echo
 
 }
 
