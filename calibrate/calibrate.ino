@@ -4,7 +4,7 @@
 #include <FirebaseArduino.h>
 #include <ESP8266WiFi.h>
 
-#define DHTPIN D0 // what digital pin we're connected to
+#define DHTPIN D3 // what digital pin we're connected to
 #define TRIC D1 //input distance sensor
 #define ECHO D2 //output distance sensor
 #define DHTTYPE DHT11
@@ -25,6 +25,7 @@ float tempNow, humiNow, distNow;      //ค่าที่จะอัพขึ�
 
 void setup() {
   // connect to wifi.
+  Serial.begin(9600);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
  
@@ -37,7 +38,7 @@ void setup() {
   Serial.println(WiFi.localIP());
  
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-  Serial.begin(9600);
+  
   pinMode(TRIC, OUTPUT);  
   pinMode(ECHO, INPUT);  
 
@@ -50,16 +51,18 @@ void loop() {
     temp[i] = dht.readTemperature();
     dist[i] = find_dist();
     humi[i] = dht.readHumidity();
-    delay(10000);
+    delay(500);
   }
   
   tempSD = abs((calculateSD(temp)/100)*tempSD - 100) < VARIANCE ? (calculateSD(temp)): tempSD;
-  distSD = abs((calculateSD(dist)/100)*tempSD - 100) < VARIANCE ? (calculateSD(dist)): tempSD;
-  humiSD = abs((calculateSD(humi)/100)*tempSD - 100) < VARIANCE ? (calculateSD(humi)): tempSD;
+  distSD = abs((calculateSD(dist)/100)*tempSD - 100) < VARIANCE ? (calculateSD(dist)): distSD;
+  humiSD = abs((calculateSD(humi)/100)*tempSD - 100) < VARIANCE ? (calculateSD(humi)): humiSD;
+  Serial.print("temp: ");
+  Serial.println(tempSD);
   Firebase.set("temp", tempSD);
   Firebase.set("dis", distSD);
   Firebase.set("humi", humiSD);
-  extension();
+//  extension();
 }
 
 void calibrate() {
@@ -72,14 +75,16 @@ void calibrate() {
     Serial.println("Failed to read from DHT sensor!");
     delay(500);
     calibrate();
+    return;
   }
 
   //Calibrate
   for (int i=0; i<10; i++) {
+    
     temp[i] = dht.readTemperature();
     dist[i] = find_dist();
     humi[i] = dht.readHumidity();
-    delay(10000);
+    delay(500);
   }
   
   tempSD = calculateSD(temp);
