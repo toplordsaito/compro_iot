@@ -5,11 +5,11 @@
 #include <ESP8266WiFi.h>
 
 #define DHTPIN D3 // what digital pin we're connected to
-#define TRIC D1 //input distance sensor
-#define ECHO D2 //output distance sensor
+#define TRIC D0 //input distance sensor
+#define ECHO D1 //output distance sensor
 #define DHTTYPE DHT11
 #define VARIANCE 10 //ความแปรปวน
-
+#define LED D5
 #define WIFI_SSID "Beaslzlo"
 #define WIFI_PASSWORD "0911919890"
 #define FIREBASE_HOST "iot-itcamp-4faf6.firebaseio.com"
@@ -22,7 +22,7 @@ float humiSD;
 float distSD;
 float temp[10], humi[10], dist[10];
 float tempNow, humiNow, distNow;      //ค่าที่จะอัพขึ้น
-
+bool LED_status;
 void setup() {
   // connect to wifi.
   Serial.begin(9600);
@@ -38,7 +38,7 @@ void setup() {
   Serial.println(WiFi.localIP());
  
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-  
+  pinMode(LED, OUTPUT);
   pinMode(TRIC, OUTPUT);  
   pinMode(ECHO, INPUT);  
 
@@ -51,17 +51,32 @@ void loop() {
     temp[i] = dht.readTemperature();
     dist[i] = find_dist();
     humi[i] = dht.readHumidity();
-    delay(500);
+    Serial.print("temp : ");
+    Serial.println(temp[i]);
+    Serial.print("jumi : ");
+    Serial.println(humi[i]);
+    Serial.print("Dis : ");
+    Serial.println(dist[i]);
+    delay(2000);
   }
   
   tempSD = abs((calculateSD(temp)/100)*tempSD - 100) < VARIANCE ? (calculateSD(temp)): tempSD;
   distSD = abs((calculateSD(dist)/100)*tempSD - 100) < VARIANCE ? (calculateSD(dist)): distSD;
   humiSD = abs((calculateSD(humi)/100)*tempSD - 100) < VARIANCE ? (calculateSD(humi)): humiSD;
-  Serial.print("temp: ");
+  Serial.print("tempSD: ");
   Serial.println(tempSD);
+  Serial.print("distSD: ");
+  Serial.println(distSD);
+  Serial.print("humiSD: ");
+  Serial.println(humiSD);
   Firebase.set("temp", tempSD);
   Firebase.set("dis", distSD);
   Firebase.set("humi", humiSD);
+  LED_status = Firebase.getBool("LED");
+  Serial.print("LED status : ");
+  Serial.println(LED_status);
+  digitalWrite(LED, LED_status);
+  delay(10000);
 //  extension();
 }
 
@@ -84,13 +99,13 @@ void calibrate() {
     temp[i] = dht.readTemperature();
     dist[i] = find_dist();
     humi[i] = dht.readHumidity();
+    Serial.print(".");
     delay(500);
   }
-  
+  Serial.println("init OK");
   tempSD = calculateSD(temp);
   distSD = calculateSD(dist);
   humiSD = calculateSD(humi);
-
   tempNow = temp[9]; 
   distNow = dist[9]; 
   humiNow = humi[9];
@@ -119,7 +134,6 @@ float calculateCToF(float celsius){
 
 float find_dist() {
   float duration, cm;
-
   digitalWrite(TRIC, LOW);
   delayMicroseconds(5);
   digitalWrite(TRIC, HIGH);
