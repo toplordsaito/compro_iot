@@ -91,6 +91,24 @@ float calculateCToF(float celsius){
   return fahrenheit;
 }
 
+float find_dist() {
+  float duration, cm;
+
+  digitalWrite(TRIC, LOW);
+  delayMicroseconds(5);
+  digitalWrite(TRIC, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIC, LOW);
+  
+  duration = pulseIn(D1, HIGH);
+  cm = (duration/2)/29.1;
+
+  return cm;
+}
+
+
+//Alert part
+
 void extension() {
   //for tempulature
   if (tempNow >= 30) {
@@ -113,20 +131,4 @@ void extension() {
     printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
     printf("** ความชื้นในอากาศมีค่าต่ำกว่าระดับที่เหมาะสม ควรใช้ครีมบำรุงผิวเพื่อให้ผิวชุ่มชื้นอยู่ตลอดเวลา **");
   }
-}
-
-void find_dist() {
-  float duration, cm;
-
-  digitalWrite(TRIC, LOW);
-  delayMicroseconds(5);
-  digitalWrite(TRIC, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIC, LOW);
-  
-  duration = pulseIn(D1, HIGH);
-  cm = (duration/2)/29.1;
-
-  return cm;
-
 }
