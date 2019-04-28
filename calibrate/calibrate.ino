@@ -3,6 +3,7 @@
 #include "math.h"
 
 #define DHTPIN D0 // what digital pin we're connected to
+#define DHTTYPE DHT22
 #define VARIANCE 10 //ความแปรปวน 
 
 DHT dht(DHTPIN, DHTTYPE);
