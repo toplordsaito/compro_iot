@@ -41,20 +41,19 @@ void setup() {
   pinMode(TRIC, OUTPUT);  
   pinMode(ECHO, INPUT);  
 
-  calibrate();
-
   dht.begin();
+  calibrate();
 }
 
 void loop() {
   for (int i=0; i<10; i++) {
     temp[i] = dht.readTemperature();
-    dist[i] = analogRead();
+    dist[i] = find_dist();
     humi[i] = dht.readHumidity();
     delay(10000);
   }
   
-  tempSD = abs((calculateSD(tem)/100)*tempSD - 100) < VARIANCE ? (calculateSD(tem)): tempSD;
+  tempSD = abs((calculateSD(temp)/100)*tempSD - 100) < VARIANCE ? (calculateSD(temp)): tempSD;
   distSD = abs((calculateSD(dist)/100)*tempSD - 100) < VARIANCE ? (calculateSD(dist)): tempSD;
   humiSD = abs((calculateSD(humi)/100)*tempSD - 100) < VARIANCE ? (calculateSD(humi)): tempSD;
   Firebase.set("temp", tempSD);
@@ -66,7 +65,7 @@ void loop() {
 void calibrate() {
   //Star Value
   tempNow = dht.readTemperature();
-  distNow = analogRead();
+  distNow = find_dist();
   humiNow = dht.readHumidity();
 
   if (isnan(tempNow) || isnan(humiNow)) {
@@ -78,7 +77,7 @@ void calibrate() {
   //Calibrate
   for (int i=0; i<10; i++) {
     temp[i] = dht.readTemperature();
-    dist[i] = analogRead();
+    dist[i] = find_dist();
     humi[i] = dht.readHumidity();
     delay(10000);
   }
@@ -87,9 +86,9 @@ void calibrate() {
   distSD = calculateSD(dist);
   humiSD = calculateSD(humi);
 
-  tempNow = temp[9] 
-  distNow = dist[9] 
-  humiNow = humi[9]
+  tempNow = temp[9]; 
+  distNow = dist[9]; 
+  humiNow = humi[9];
 }
 
 float calculateSD(float data[10]) {
