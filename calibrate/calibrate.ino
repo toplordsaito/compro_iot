@@ -1,19 +1,39 @@
-#include <Time.h>
 #include <TimeLib.h>
+#include "DHT.h"
+#include "math.h"
 
-#include <math.h>
+#define DHTPIN D0 // what digital pin we're connected to
 
-float temSD;
-float distSD;
-float humiSD;
+DHT dht(DHTPIN, DHTTYPE);
 
 void setup() {
   int sd = calibrate();
+  float tempSD;
+  float humiSD;
+  float disSD
+  float temp,humi,dis;
+
+  Serial.begin(9600);
+  Serial.println("DHTxx test!");
+
+  float percent = abs((temp/100)*tempSD);
+
+  dht.begin();
+
 }
 
 
 void loop() {
-  
+  // หน่วงเวลา 2 วินาทีให้เซนเซอร์ทำงาน
+  delay(2000);
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  float f = dht.readTemperature(true);
+
+  // เช็คถ้าอ่านค่าไม่สำเร็จให้เริ่มอ่านใหม่
+  if (isnan(h) || isnan(t) || isnan(f)) {
+  Serial.println("Failed to read from DHT sensor!");
+  return;
   // put your main code here, to run repeatedly:
 
 }
@@ -22,8 +42,8 @@ void calibrate() {
   float tem, dist, humi;
 
   //Star Value
-  tem = analogRead();
-  dist = analogRead();
+  tem = dht.readTemperature();
+  dist = dht.readHumidity();
   humi = analogRead();
 
   //Calibrate
@@ -41,9 +61,8 @@ void calibrate() {
 
 float calculateSD(float var) {
   float sum = 0.0, mean, standardDeviation = 0.0;
-  int i;
   
-  for(i=0; i<10; ++i) {
+  for(int i=0; i<10; ++i) {
         sum += data[i];
   }
 
