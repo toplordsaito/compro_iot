@@ -8,6 +8,6 @@ void setup() {
 }
 
 void loop() {
-  float result = abs((temp/100)*tempSD);
+  float percent = abs((temp/100)*tempSD);
 
 }
