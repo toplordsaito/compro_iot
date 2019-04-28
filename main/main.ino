@@ -8,7 +8,7 @@
 #define TRIC D0 //input distance sensor
 #define ECHO D1 //output distance sensor
 #define DHTTYPE DHT11
-#define VARIANCE 10 //ความแปรปวน
+#define VARIANCE 2 //ความแปรปวน
 #define LED D5
 #define WIFI_SSID "Beaslzlo"
 #define WIFI_PASSWORD "0911919890"
@@ -57,24 +57,26 @@ void loop() {
     Serial.println(humi[i]);
     Serial.print("Dis : ");
     Serial.println(dist[i]);
-    delay(2000);
+    delay(10000);
   }
 
   tempNow = temp[9]; 
   distNow = dist[9]; 
   humiNow = humi[9];
 
+  //Temporary SD
+  Serial.println("'''''' Temporary SD '''''' ");
   float temporary = calculateSD(temp);
   Serial.println(temporary);
-  tempSD = abs(temporary - tempSD) < VARIANCE ? temporary: tempSD;
+  tempSD = (abs(temporary - tempSD)) < VARIANCE ? temporary: tempSD;
   
   temporary = calculateSD(dist);
   Serial.println(temporary);
-  distSD = abs(temporary - distSD) < VARIANCE ? temporary: distSD;
+  distSD = (abs(temporary - distSD)) < VARIANCE ? temporary: distSD;
   
   temporary = calculateSD(humi);
   Serial.println(temporary);
-  humiSD = abs(temporary - humiSD) < VARIANCE ? temporary: humiSD;
+  humiSD = (abs(temporary - humiSD)) < VARIANCE ? temporary: humiSD;
   
   Serial.print("tempSD: ");
   Serial.println(tempSD);
@@ -93,7 +95,6 @@ void loop() {
   Serial.print("LED status : ");
   Serial.println(LED_status);
   digitalWrite(LED, LED_status);
-  delay(10000);
 //  extension();
 }
 
