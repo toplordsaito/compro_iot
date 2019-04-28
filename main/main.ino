@@ -69,9 +69,12 @@ void loop() {
   Serial.println(distSD);
   Serial.print("humiSD: ");
   Serial.println(humiSD);
-  Firebase.set("temp", tempSD);
-  Firebase.set("dis", distSD);
-  Firebase.set("humi", humiSD);
+  Firebase.set("temp", temp);
+  Firebase.set("dis", dist);
+  Firebase.set("humi", humi);
+  Firebase.set("tempSD", tempSD);
+  Firebase.set("disSD", distSD);
+  Firebase.set("humiSD", humiSD);
   LED_status = Firebase.getBool("LED");
   Serial.print("LED status : ");
   Serial.println(LED_status);
