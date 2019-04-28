@@ -16,7 +16,7 @@
 #define FIREBASE_AUTH "SIfGol16ty51iMyjzndxwuaZvyM7ymdfdFcvHdnW"
 
 DHT dht(DHTPIN, DHTTYPE);
-
+String error = "";
 float tempSD;
 float humiSD;
 float distSD;
@@ -53,25 +53,39 @@ void loop() {
     humi[i] = dht.readHumidity();
     Serial.print("temp : ");
     Serial.println(temp[i]);
-    Serial.print("jumi : ");
+    Serial.print("Humi : ");
     Serial.println(humi[i]);
     Serial.print("Dis : ");
     Serial.println(dist[i]);
     delay(2000);
   }
+
+  tempNow = temp[9]; 
+  distNow = dist[9]; 
+  humiNow = humi[9];
+
+  float temporary = calculateSD(temp);
+  Serial.println(temporary);
+  tempSD = abs(temporary - tempSD) < VARIANCE ? temporary: tempSD;
   
-  tempSD = abs((calculateSD(temp)/100)*tempSD - 100) < VARIANCE ? (calculateSD(temp)): tempSD;
-  distSD = abs((calculateSD(dist)/100)*tempSD - 100) < VARIANCE ? (calculateSD(dist)): distSD;
-  humiSD = abs((calculateSD(humi)/100)*tempSD - 100) < VARIANCE ? (calculateSD(humi)): humiSD;
+  temporary = calculateSD(dist);
+  Serial.println(temporary);
+  distSD = abs(temporary - distSD) < VARIANCE ? temporary: distSD;
+  
+  temporary = calculateSD(humi);
+  Serial.println(temporary);
+  humiSD = abs(temporary - humiSD) < VARIANCE ? temporary: humiSD;
+  
   Serial.print("tempSD: ");
   Serial.println(tempSD);
   Serial.print("distSD: ");
   Serial.println(distSD);
   Serial.print("humiSD: ");
   Serial.println(humiSD);
-  Firebase.set("temp", temp);
-  Firebase.set("dis", dist);
-  Firebase.set("humi", humi);
+  Firebase.setString("error", error);
+  Firebase.set("temp", tempNow);
+  Firebase.set("dis", distNow);
+  Firebase.set("humi", humiNow);
   Firebase.set("tempSD", tempSD);
   Firebase.set("disSD", distSD);
   Firebase.set("humiSD", humiSD);
