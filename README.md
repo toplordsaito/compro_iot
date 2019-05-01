@@ -1,6 +1,6 @@
 # Security Door Alert
 ## Add friends our bot in Line
-<img src="https://i.imgur.com/aIketKC.png">
+<img src="https://i.imgur.com/aIketKC.png"height="250" wigth="250">
 <img src="https://scontent.fbkk5-6.fna.fbcdn.net/v/t1.15752-9/58852894_418718412241060_7010432378594131968_n.jpg?_nc_cat=102&_nc_oc=AQnkK5vNEa-1h8xd2Y75EulqQSC1bZkNGJuLJvS8rA8X_sATuNpDfLrEhG_Jruxoe3U&_nc_ht=scontent.fbkk5-6.fna&oh=41fc48757feba02549083f4245a13015&oe=5D6F4CB9" height="250" wigth="250">
 
 ## Statistics
