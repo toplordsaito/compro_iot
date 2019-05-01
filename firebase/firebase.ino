@@ -32,7 +32,8 @@ void setup() {
 }
  
 void loop() {
-  Firebase.push("test",i);
+  Firebase.set("test/code",2);
+  Firebase.set("test/val",i);
   delay(1000);
   i+=1;
 // Firebase.set("test1/gg", 9999);
