@@ -3,6 +3,9 @@
 #include "math.h"
 #include <FirebaseArduino.h>
 #include <ESP8266WiFi.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>
 
 #define DHTPIN D3 // what digital pin we're connected to
 #define TRIC D0 //input distance sensor
@@ -26,16 +29,18 @@ bool LED_status;
 void setup() {
   // connect to wifi.
   Serial.begin(9600);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("connecting");
- 
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
+  WiFiManager wifiManager;
+  wifiManager.setTimeout(180);    
+  if(!wifiManager.autoConnect("AutoConnectAP")) 
+  {
+    Serial.println("Failed to connect and hit timeout");
+    delay(3000);
+    ESP.reset();
+    delay(5000);
   }
+  WiFi.printDiag(Serial);
   Serial.println();
-  Serial.print("connected: ");
-  Serial.println(WiFi.localIP());
+  Serial.println("connected...OK"); 
  
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   pinMode(LED, OUTPUT);
@@ -48,21 +53,23 @@ void setup() {
 
 void loop() {
   for (int i=0; i<10; i++) {
-    temp[i] = dht.readTemperature();
-    dist[i] = find_dist();
-    humi[i] = dht.readHumidity();
+    tempNow = dht.readTemperature();
+    distNow = find_dist();
+    humiNow = dht.readHumidity();
+    temp[i] = tempNow;
+    dist[i] = distNow;
+    humi[i] = humiNow;
+    Firebase.set("val/temp", tempNow);
+    Firebase.set("val/dis", distNow);
+    Firebase.set("val/humi", humiNow);
     Serial.print("temp : ");
-    Serial.println(temp[i]);
+    Serial.println(tempNow);
     Serial.print("Humi : ");
-    Serial.println(humi[i]);
+    Serial.println(humiNow);
     Serial.print("Dis : ");
-    Serial.println(dist[i]);
+    Serial.println(distNow);
     delay(10000);
   }
-
-  tempNow = temp[9]; 
-  distNow = dist[9]; 
-  humiNow = humi[9];
 
   //Temporary SD
   Serial.println("'''''' Temporary SD '''''' ");
@@ -85,13 +92,11 @@ void loop() {
   Serial.print("humiSD: ");
   Serial.println(humiSD);
   Firebase.setString("error", error);
-  Firebase.set("temp", tempNow);
-  Firebase.set("dis", distNow);
-  Firebase.set("humi", humiNow);
-  Firebase.set("tempSD", tempSD);
-  Firebase.set("disSD", distSD);
-  Firebase.set("humiSD", humiSD);
-  LED_status = Firebase.getBool("LED");
+  
+  Firebase.set("SD/tempSD", tempSD);
+  Firebase.set("SD/disSD", distSD);
+  Firebase.set("SD/humiSD", humiSD);
+  LED_status = Firebase.getBool("val/LED");
   Serial.print("LED status : ");
   Serial.println(LED_status);
   digitalWrite(LED, LED_status);
