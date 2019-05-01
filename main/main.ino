@@ -28,6 +28,7 @@ float temp[10], humi[10], dist[10];
 float tempNow, humiNow, distNow;      //ค่าที่จะอัพขึ้น
 bool LED_status, LED_BEFORE;
 int timeNow;
+float codeNow = -1;
 
 // NTP Servers:
 static const char ntpServerName[] = "us.pool.ntp.org";
@@ -307,7 +308,11 @@ void sendNTPpacket(IPAddress &address) {
 
 //Alert part
 
-void alert(String code) {
+int alert(String code) {
+  if (code == codeNow) {
+    return 0;
+  }
+  
   StaticJsonBuffer<300> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
 
@@ -325,7 +330,7 @@ void alert(String code) {
     root["code"] = 1.3;
   } else if (code == "dist") {
     root["code"] = 2;
-  } else {
+  } else if (code == "six") {
     root["code"] = 3;
   }
 
@@ -334,12 +339,12 @@ void alert(String code) {
   root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
 
   Firebase.set("Code", root);
+  codeNow = code;
 }
 
 void extension() {
   //for tempulature
   if (tempNow >= 35) {
-    //printf("ขณะนี้อุณหภูมิภายในห้อง %d องศาเซลเซียส %d ฟาเรนไฮ", tempNow, calculateCToF(tempNow));
     alert("hot");
   } else if (tempNow < 10) {
     alert("cold");
@@ -347,15 +352,10 @@ void extension() {
 
   //for humidity
   if (humiNow >= 60) {
-    //printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
-    //printf("** ความชื้นในอากาศมีค่ามากเกินไปซึ่งป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา เป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา ซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดได้ **");
     alert("hi_humi");
   } else if (humiNow >= 30) {
-    //printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
     alert("me_humi");
   } else if(humiNow < 30) {
-    //printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
-    //printf("** ความชื้นในอากาศมีค่าต่ำกว่าระดับที่เหมาะสม ควรใช้ครีมบำรุงผิวเพื่อให้ผิวชุ่มชื้นอยู่ตลอดเวลา **");
     alert("lo_humi");
   }
 }
