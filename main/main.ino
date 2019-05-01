@@ -27,6 +27,7 @@ float distSD;
 float temp[10], humi[10], dist[10];
 float tempNow, humiNow, distNow;      //ค่าที่จะอัพขึ้น
 bool LED_status, LED_BEFORE;
+int timeNow;
 
 // NTP Servers:
 static const char ntpServerName[] = "us.pool.ntp.org";
@@ -64,11 +65,30 @@ void setup() {
   pinMode(TRIC, OUTPUT);  
   pinMode(ECHO, INPUT);  
 
+  Serial.println("Starting UDP");
+  Udp.begin(localPort);
+  Serial.print("Local port: ");
+  Serial.println(Udp.localPort());
+  Serial.println("waiting for sync");
+  setSyncProvider(getNtpTime);
+  setSyncInterval(300);
+
   dht.begin();
   calibrate();
   
   LED_status = Firebase.getBool("val/LED");
   LED_BEFORE = LED_status;
+  timeNow = hour();
+
+  Serial.println("Starting create Data JSON");
+  Serial.println(timeNow);
+  StaticJsonBuffer<300> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  root["time"] =String(timeNow) + ".00 " + String(day()) + "/" + String(month()) + "/" + String(year());
+  root["Temp"] = tempNow;
+  root["Humi"] = humiNow;
+  Firebase.push("DataByTime", root);
+  alert("3");
 }
 
 void loop() {
@@ -93,18 +113,30 @@ void loop() {
   }
 
   //Temporary SD
-  Serial.println("'''''' Temporary SD '''''' ");
+  Serial.println("''''''  Standard Deviation  '''''' ");
   float temporary = calculateSD(temp);
   Serial.println(temporary);
-  tempSD = (abs(temporary - tempSD)) < VARIANCE ? temporary: tempSD;
+  if ((abs(temporary - tempSD)) < VARIANCE) {
+    tempSD = temporary;
+  } else {
+    alert("temp");
+  }
   
   temporary = calculateSD(dist);
   Serial.println(temporary);
-  distSD = (abs(temporary - distSD)) < VARIANCE ? temporary: distSD;
+  if ((abs(temporary - distSD)) < VARIANCE) {
+    distSD = temporary;
+  } else {
+    alert("dist");
+  }
   
   temporary = calculateSD(humi);
   Serial.println(temporary);
-  humiSD = (abs(temporary - humiSD)) < VARIANCE ? temporary: humiSD;
+  if ((abs(temporary - humiSD)) < VARIANCE) {
+    humiSD = temporary;
+  } else {
+    alert("humi");
+  }
   
   Serial.print("tempSD: ");
   Serial.println(tempSD);
@@ -117,7 +149,17 @@ void loop() {
   Firebase.set("SD/tempSD", tempSD);
   Firebase.set("SD/disSD", distSD);
   Firebase.set("SD/humiSD", humiSD);
-//  extension();
+
+  if (timeNow != hour()) {
+  StaticJsonBuffer<300> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  root["time"] =String(timeNow) + ".00 " + String(day()) + "/" + String(month()) + "/" + String(year());
+  root["Temp"] = tempNow;
+  root["Humi"] = humiNow;
+  Firebase.push("DataByTime", root);
+  timeNow = hour();
+  }
+ extension();
 }
 
 void ledManage() {
@@ -197,29 +239,6 @@ float find_dist() {
   return cm;
 }
 
-void digitalClockDisplay()
-{
-  // digital clock display of the time
-  Serial.print(hour());
-  printMinut(minute());
-  printMinut(second());
-  Serial.print(" ");
-  Serial.print(day());
-  Serial.print(".");
-  Serial.print(month());
-  Serial.print(".");
-  Serial.print(year());
-  Serial.println();
-}
-
-void printMinut(int digits) {
-  // utility for digital clock display: prints preceding colon and leading 0
-  Serial.print(":");
-  if (digits < 10)
-    Serial.print('0');
-  Serial.print(digits);
-}
-
 const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
 byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 
@@ -280,26 +299,59 @@ void sendNTPpacket(IPAddress &address) {
 
 //Alert part
 
+void alert(String code) {
+  StaticJsonBuffer<300> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  
+  if (code == "temp") {
+    root["code"] = 0;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  } else if (code == "hot") {
+    root["code"] = 0.1;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  } else if (code == "cold") {
+    root["code"] = 0.2;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  } else if (code == "hi_humi") {
+    root["code"] = 1.1;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  } else if (code == "me_humi") {
+    root["code"] = 1.2;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  } else if (code == "lo_humi") {
+    root["code"] = 1.3;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  } else if (code == "dist") {
+    root["code"] = 2;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  } else {
+    root["code"] = 3;
+    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
+  }
+
+  Firebase.set("Code", root);
+}
+
 void extension() {
   //for tempulature
-  if (tempNow >= 30) {
-    printf("ขณะนี้อุณหภูมิภายในห้อง %d องศาเซลเซียส %d ฟาเรนไฮ", tempNow, calculateCToF(tempNow));
-  } else if (tempNow >= 25) {
-    printf("ขณะนี้อุณหภูมิภายในห้อง %d องศาเซลเซียส %d ฟาเรนไฮ", tempNow, calculateCToF(tempNow));
-  } else if (tempNow >= 20) {
-    printf("ขณะนี้อุณหภูมิภายในห้อง %d องศาเซลเซียส %d ฟาเรนไฮ", tempNow, calculateCToF(tempNow));
-  } else {
-    printf("ขณะนี้อุณหภูมิภายในห้อง %d องศาเซลเซียส %d ฟาเรนไฮ", tempNow, calculateCToF(tempNow));
+  if (tempNow >= 35) {
+    //printf("ขณะนี้อุณหภูมิภายในห้อง %d องศาเซลเซียส %d ฟาเรนไฮ", tempNow, calculateCToF(tempNow));
+    alert("hot");
+  } else if (tempNow < 10) {
+    alert("cold");
   }
 
   //for humidity
   if (humiNow >= 60) {
-    printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
-    printf("** ความชื้นในอากาศมีค่ามากเกินไปซึ่งป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา เป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา ซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดได้ **");
+    //printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
+    //printf("** ความชื้นในอากาศมีค่ามากเกินไปซึ่งป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา เป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา ซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดได้ **");
+    alert("hi_humi");
   } else if (humiNow >= 30) {
-    printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
+    //printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
+    alert("me_humi");
   } else if(humiNow < 30) {
-    printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
-    printf("** ความชื้นในอากาศมีค่าต่ำกว่าระดับที่เหมาะสม ควรใช้ครีมบำรุงผิวเพื่อให้ผิวชุ่มชื้นอยู่ตลอดเวลา **");
+    //printf("ขณะนี้ความชื้นสัมพัทธ์ในอากาศิภายในห้อง %d%%", humiNow);
+    //printf("** ความชื้นในอากาศมีค่าต่ำกว่าระดับที่เหมาะสม ควรใช้ครีมบำรุงผิวเพื่อให้ผิวชุ่มชื้นอยู่ตลอดเวลา **");
+    alert("lo_humi");
   }
 }
