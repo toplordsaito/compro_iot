@@ -35,7 +35,7 @@ const int timeZone = 7;     // Central European Time
 
 WiFiUDP Udp;
 unsigned int localPort = 8888;  // local port to listen for UDP packets
-
+int pass = 0;
 time_t getNtpTime();
 void digitalClockDisplay();
 void printDigits(int digits);
@@ -88,10 +88,14 @@ void setup() {
   root["Temp"] = tempNow;
   root["Humi"] = humiNow;
   Firebase.push("DataByTime", root);
-  alert("3");
 }
 
 void loop() {
+  if (hour() == 6 && minute() == 0) {
+      alert("six");
+      delay(60000);
+    }
+    
   for (int i=0; i<10; i++) {
     ledManage();
     tempNow = dht.readTemperature();
@@ -109,6 +113,10 @@ void loop() {
     Serial.println(humiNow);
     Serial.print("Dis : ");
     Serial.println(distNow);
+    if(distNow < 20){
+        pass += 1;
+        Firebase.set("pass", pass);
+    }
     delay(1000);
   }
 
@@ -302,32 +310,28 @@ void sendNTPpacket(IPAddress &address) {
 void alert(String code) {
   StaticJsonBuffer<300> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
-  
+
   if (code == "temp") {
     root["code"] = 0;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   } else if (code == "hot") {
     root["code"] = 0.1;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   } else if (code == "cold") {
     root["code"] = 0.2;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   } else if (code == "hi_humi") {
     root["code"] = 1.1;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   } else if (code == "me_humi") {
     root["code"] = 1.2;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   } else if (code == "lo_humi") {
     root["code"] = 1.3;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   } else if (code == "dist") {
     root["code"] = 2;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   } else {
     root["code"] = 3;
-    root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
   }
+
+  root["temp"] = tempNow;
+  root["humi"] = humiNow;
+  root["time"] = String(day()) + "/" + String(month()) + "/" + String(year());
 
   Firebase.set("Code", root);
 }
