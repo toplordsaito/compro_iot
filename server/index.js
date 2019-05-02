@@ -19,6 +19,7 @@ const configfire = {
 firebase.initializeApp(configfire);
 
 var db = firebase.database();
+var now = 0;
 // MQTT Host
 // var mqtt_host = 'mqtt://m13.cloudmqtt.com';
 // // MQTT Topic
@@ -213,7 +214,9 @@ const replyText = (token, texts) => {
 init()
 
  function init() {
+   
   console.log("start");
+  if(now > 0){
   db.ref('/Code').on("value", function(snapshot) {
     var ans = snapshot.val();
     console.log(ans)
@@ -473,6 +476,6 @@ init()
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
-
-
+  }
+  now += 1;
 }
