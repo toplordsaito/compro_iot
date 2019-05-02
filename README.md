@@ -9,7 +9,7 @@
 ## Object
 เพื่อยกระดับความปลอดภัยภายในบ้านและตรวจสถานะผิดปกติ
 ## How to use
-1. Add Line บอทตาม Qr-code ข้างต้น
+1. เพิ่มเพื่อนFriday-Aiผู้ช่วยสุดเก่งของคุณตาม Qr-code ข้างต้น
 2. สามารถกดสั่งการบอทผ่าน quick reply bottonได้เลยดังรูป
 <img src="expic/1.jpg" height="250" wigth="200" >
 <img src="expic/2.jpg" height="250" wigth="200" >
