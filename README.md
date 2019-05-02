@@ -9,8 +9,8 @@
 ## Object
 เพื่อยกระดับความปลอดภัยภายในบ้านและตรวจสถานะผิดปกติ
 ## How to use
-*add line บอทตาม Qr-code ข้างต้น
-<img src="expic/1.jpg">
+1. add line บอทตาม Qr-code ข้างต้น
+<img src="expic/1.jpg" height="250" wigth="200" >
 ## Statistics
 
 **Project Started:** 10 April 2019
