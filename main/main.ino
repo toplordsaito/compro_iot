@@ -131,13 +131,6 @@ void loop() {
     alert("temp");
   }
   
-  temporary = calculateSD(dist);
-  Serial.println(temporary);
-  if ((abs(temporary - distSD)) < VARIANCE) {
-    distSD = temporary;
-  } else {
-    alert("dist");
-  }
   
   temporary = calculateSD(humi);
   Serial.println(temporary);
@@ -309,11 +302,15 @@ void sendNTPpacket(IPAddress &address) {
 //Alert part
 
 int alert(String code) {
-  if (code == codeNow) {
-    return 0;
-  }
-  
-  StaticJsonBuffer<300> jsonBuffer;
+
+  Serial.println("----Before----");
+  Serial.print("Code: ");
+  Serial.println(code);
+  Serial.print("CodeNow: ");
+  Serial.println(codeNow);
+
+  if (code != codeNow) {
+   StaticJsonBuffer<300> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
 
   if (code == "temp") {
@@ -340,6 +337,16 @@ int alert(String code) {
 
   Firebase.set("Code", root);
   codeNow = code;
+  }
+  
+  Serial.println();
+  Serial.println("----After----");
+  Serial.print("Code: ");
+  Serial.println(code);
+  Serial.print("CodeNow: ");
+  Serial.println(codeNow);
+  
+  
 }
 
 void extension() {
