@@ -10,7 +10,7 @@
 เพื่อยกระดับความปลอดภัยภายในบ้านและตรวจสถานะผิดปกติ
 ## How to use
 *add line บอทตาม Qr-code ข้างต้น
-<img src="expic/1.jpg"
+<img src="expic/1.jpg">
 ## Statistics
 
 **Project Started:** 10 April 2019
