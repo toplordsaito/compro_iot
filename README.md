@@ -22,6 +22,7 @@
 
 ## Project Review
 * https://youtu.be/H7xFs2KR10M
+<img src="expic/5.jpg" height="250" wigth="200" >
 
 ## How to use
 1. เพิ่มเพื่อนFriday-Aiผู้ช่วยสุดเก่งของคุณตาม Qr-code ข้างต้น
@@ -29,6 +30,8 @@
 <img src="expic/1.jpg" height="250" wigth="200" >
 <img src="expic/2.jpg" height="250" wigth="200" >
 <img src="expic/3.jpg" height="250" wigth="200" >
+<img src="expic/4.jpg" height="250" wigth="200" >
+
 
 ## Statistics
 
@@ -46,3 +49,5 @@
 |[Poom](https://github.com/Kuroishi1221)|[MAI](https://github.com/toplordsaito)|[Great](https://github.com/Phakapol)|[Guy](https://github.com/Alhzz)|
 |Ratchanon<br>Chumbunyeanyong|Waruwat<br>Chaidit|Phakapol<br>Tanhawattana|Ason<br>Uthatham|
 |61070182|61070214|61070153|61070262|
+
+**ปล. ตอนนี้เซิฟเวอร์ deploy on free server ทำให้อาจมีการ down เป็นระยะๆ ควรนำไฟล์ใน folder server ไปเปิดเป็น server ของตัวเองเพื่อการใช่งานที่ถูกต้องและไม่ผิดพลาด
