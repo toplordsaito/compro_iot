@@ -28,7 +28,7 @@ float temp[10], humi[10], dist[10];
 float tempNow, humiNow, distNow;      //ค่าที่จะอัพขึ้น
 bool LED_status, LED_BEFORE;
 int timeNow;
-float codeNow = -1;
+String codeNow = "";
 
 // NTP Servers:
 static const char ntpServerName[] = "us.pool.ntp.org";
