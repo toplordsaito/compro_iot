@@ -19,6 +19,7 @@ const configfire = {
 firebase.initializeApp(configfire);
 
 var db = firebase.database();
+var now = 0;
 // MQTT Host
 // var mqtt_host = 'mqtt://m13.cloudmqtt.com';
 // // MQTT Topic
@@ -213,6 +214,7 @@ const replyText = (token, texts) => {
 init()
 
  function init() {
+   
   console.log("start");
   db.ref('/Code').on("value", function(snapshot) {
     var ans = snapshot.val();
@@ -349,36 +351,6 @@ init()
           {
             type: 'text',
             text: 'ตอนนี้ความชื้นในบ้านของคุณมีค่ามากเกินไปซึ่งป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา เป็นความชื้นที่เหมาะสมต่อการเจริญเติบโตของเชื้อรา ซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดซึ่งเชื้อราจะเป็นอันตรายต่อบุคคลที่ป่วยเป็นโรคหอบหืดได้'
-          },
-          {
-            "type": "sticker",
-            "packageId": "11537",
-            "stickerId": "52002770"
-          }
-        ]
-      }
-      request({
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+CH_ACCESS_TOKEN+''
-        },
-        url: 'https://api.line.me/v2/bot/message/broadcast',
-        method: 'POST',
-        body: data,
-        json: true
-      }, function (err, res, body) {
-        if (err) console.log('error')
-        if (res) console.log('success')
-        if (body) console.log(body)
-      })
-    }
-    else if(ans.code == 1.2){ //ชื้นเหมาะ
-      let data = {
-        to: '',
-        messages: [
-          {
-            type: 'text',
-            text: 'อรุณสวัสดิ์จ้า เช้านี้บ้านของคุณ'
           },
           {
             "type": "sticker",
