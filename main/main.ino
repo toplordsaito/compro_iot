@@ -60,11 +60,12 @@ void setup() {
   WiFi.printDiag(Serial);
   Serial.println();
   Serial.println("connected...OK"); 
- 
+  
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   pinMode(LED, OUTPUT);
   pinMode(TRIC, OUTPUT);  
   pinMode(ECHO, INPUT);  
+  Firebase.setBool("val/LED", true);
 
   Serial.println("Starting UDP");
   Udp.begin(localPort);
