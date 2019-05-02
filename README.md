@@ -20,6 +20,9 @@
  ภาพตัวอย่างหน้าConfigure
 <img src="expic/7.png" height="250" wigth="200">
 
+## Project Review
+* https://youtu.be/H7xFs2KR10M
+
 ## How to use
 1. เพิ่มเพื่อนFriday-Aiผู้ช่วยสุดเก่งของคุณตาม Qr-code ข้างต้น
 2. สามารถกดสั่งการบอทผ่าน quick reply bottonได้เลยดังรูป
